@@ -26,7 +26,6 @@ file.close()
 movies = getAllPlayableFiles(movie_directory_path)
 
 movie = random.choice(movies)
-print(movie)
 
 subprocess.Popen([media_player_path, movie])
 
