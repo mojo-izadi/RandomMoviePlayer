@@ -15,5 +15,5 @@ movie_path = os.path.join(movie_directory_path, movie)
 movie_file_name = [x for x in os.listdir(movie_path) if x.endswith(".mkv") | x.endswith(".mp4")][0]
 movie_file_path = os.path.join(movie_path, movie_file_name)
 
-p = subprocess.Popen([media_player_path, movie_file_path])
+subprocess.Popen([media_player_path, movie_file_path])
 
