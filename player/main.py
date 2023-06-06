@@ -17,13 +17,38 @@ def getAllPlayableFiles(path):
 def isPlayableFile(file_path):
     return file_path.endswith(".mkv") | file_path.endswith(".mp4") | file_path.endswith(".webm")
 
+
+def get_length(movie):
+    result = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
+                             "format=duration", "-of", "default=noprint_wrappers=1:nokey=1",
+                             movie], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    duration = float(result.stdout)
+
+    return duration / 60
+
+
+def get_movies_in_length_range(movies, min_length, max_length):
+    return [movie for movie in movies if (get_length(movie) >= min_length) & (get_length(movie) <= max_length)]
+
+
 file = open('paths.json')
 path_data = json.load(file)
 movie_directory_path = path_data['movie_directory_path']
 media_player_path = path_data['media_player_path']
 file.close()
 
+file = open('length.json')
+path_data = json.load(file)
+filter_by_length = path_data['filter_by_length']
+min_length = float(path_data['min_length'])
+max_length = float(path_data['max_length'])
+file.close()
+
 movies = getAllPlayableFiles(movie_directory_path)
+
+if filter_by_length:
+    movies = get_movies_in_length_range(movies, min_length, max_length)
 
 movie = random.choice(movies)
 
