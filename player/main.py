@@ -1,3 +1,4 @@
+import GUI
 import json
 import os
 import random
@@ -53,34 +54,29 @@ def get_movies_in_year_range(movies, min_year, max_year):
             to_return += [movie, ]
     return to_return
 
+
 file = open('paths.json')
 path_data = json.load(file)
 movie_directory_path = path_data['movie_directory_path']
 media_player_path = path_data['media_player_path']
 file.close()
 
-file = open('length.json')
-path_data = json.load(file)
-filter_by_length = path_data['filter_by_length']
-min_length = float(path_data['min_length'])
-max_length = float(path_data['max_length'])
-file.close()
-
-file = open('year.json')
-path_data = json.load(file)
-filter_by_year = path_data['filter_by_year']
-min_year = path_data['min_year']
-max_year = path_data['max_year']
-file.close()
-
 movies = getAllPlayableFiles(movie_directory_path)
 
+filter_by_year, min_year, max_year, filter_by_length, min_length, max_length = GUI.create_GUI()
+
 if filter_by_year:
-    movies = get_movies_in_year_range(movies, min_year, max_year)
+    movies = get_movies_in_year_range(movies,
+                                      int(min_year) if min_year != '' else -1,
+                                      int(max_year) if max_year != '' else 10000)
 
 if filter_by_length:
-    movies = get_movies_in_length_range(movies, min_length, max_length)
+    movies = get_movies_in_length_range(movies,
+                                        float(min_length) if min_length != '' else -1,
+                                        float(max_length) if max_length != '' else 10000)
 
-movie = random.choice(movies)
-
-subprocess.Popen([media_player_path, movie])
+if len(movies) == 0:
+    GUI.show_error_message_box()
+else:
+    movie = random.choice(movies)
+    subprocess.Popen([media_player_path, movie])
