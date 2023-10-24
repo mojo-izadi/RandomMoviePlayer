@@ -2,8 +2,8 @@ import GUI
 import json
 import os
 import random
-import subprocess
 import re
+import cv2
 
 year_pattern = re.compile('\\d{4}')
 
@@ -24,13 +24,10 @@ def isPlayableFile(file_path):
 
 
 def get_length(file):
-    result = subprocess.run(["ffprobe", "-v", "error", "-show_entries",
-                             "format=duration", "-of", "default=noprint_wrappers=1:nokey=1",
-                             file], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-
-    duration = float(result.stdout)
-
-    return duration / 60
+    video = cv2.VideoCapture(file)
+    frame_count = video.get(cv2.CAP_PROP_FRAME_COUNT)
+    fps = video.get(cv2.CAP_PROP_FPS)
+    return frame_count / (fps * 60)
 
 
 def get_year(file):
@@ -58,7 +55,6 @@ def get_movies_in_year_range(movies, min_year, max_year):
 file = open('paths.json')
 path_data = json.load(file)
 movie_directory_path = path_data['movie_directory_path']
-media_player_path = path_data['media_player_path']
 file.close()
 
 movies = getAllPlayableFiles(movie_directory_path)
@@ -79,4 +75,4 @@ if len(movies) == 0:
     GUI.show_error_message_box()
 else:
     movie = random.choice(movies)
-    subprocess.Popen([media_player_path, movie])
+    os.startfile(movie)
